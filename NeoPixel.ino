@@ -44,8 +44,8 @@ Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 //   NEO_RGBW    Pixels are wired for RGBW bitstream (NeoPixel RGBW products)
 
 
-const char *ssid =  "mylogin";     // replace with your wifi ssid and wpa2 key
-const char *pass =  "mypass1234";
+const char *ssid =  "keroro_2g";     // replace with your wifi ssid and wpa2 key
+const char *pass =  "zzzaq12wsxxx";
 
 WiFiClient client;
 
