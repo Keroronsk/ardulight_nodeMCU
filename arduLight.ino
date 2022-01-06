@@ -15,7 +15,7 @@
 // NeoPixel brightness, 0 (min) to 255 (max)
 #define BRIGHTNESS 255
 #define BLYNK_PRINT Serial
-#define SERIAL_TIMEOUT_THRESHOLD 1000000 // number of loops before we consider serial to be silent
+#define SERIAL_TIMEOUT_THRESHOLD 10000000 // number of loops before we consider serial to be silent
 
 
 
@@ -35,7 +35,7 @@ struct State {
     uint32_t serialTimeoutCounter;  // keep track of how many loops() since we last heard from the serial port
     RgbColor targetColor;           // target (and after the fade, the current) color set by MQTT
     RgbColor prevColor;             // the previous color set by MQTT
-    bool isFading;                  // whether or not we are fading between MQTT colors
+    bool  isFading;                 // whether or not we are fading between MQTT colors
     float fadeProgress;             // how far we have faded
     float fadeStep;                 // how much the fade progress should change each iteration
 } state;
@@ -232,19 +232,26 @@ void loop()
 {
 static int mState=0;
 static int idx=0;
+static int rainbowSpeed=0;
 uint32_t color;
 int32_t len;
 
   state.serialTimeoutCounter++;
 
-
-  if(mState==0 && state.serialTimeoutCounter>10000)
+  // change serialTimeoutCounter for rainbow speed
+  if(mState==0 )
   {
     state.serialTimeoutCounter=0;
-    rainbowCycle(); // change for speed
+    rainbowSpeed++;
+    if(rainbowSpeed==10000)
+    {
+      rainbowCycle();
+      rainbowSpeed=0;
+    }
   }
   
   int packetSize = Udp.parsePacket();
+  
   if (packetSize)
   {
     mState=1;
@@ -308,6 +315,8 @@ int32_t len;
   else 
   {
         //handleSerialTimeout();
+        if(state.serialTimeoutCounter<SERIAL_TIMEOUT_THRESHOLD)state.serialTimeoutCounter++;
+        else mState=0;
   }
 
 //kick the dog
