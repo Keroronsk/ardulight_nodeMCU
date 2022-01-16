@@ -239,18 +239,46 @@ static int idx=0;
 static int rainbowSpeed=0;
 uint32_t color;
 int32_t len;
+static bool fl_needDebounce=false;
+static bool fl_SoftOf=false;
 
   state.serialTimeoutCounter++;
 
-  // change serialTimeoutCounter for rainbow speed
-  if(mState==0 )
+
+  if(digitalRead(TRIGGER_PIN) == HIGH)
   {
-    state.serialTimeoutCounter=0;
-    rainbowSpeed++;
-    if(rainbowSpeed==10000)
+    //key is pressed, wait to release key
+    if(fl_needDebounce==false)
     {
-      rainbowCycle();
-      rainbowSpeed=0;
+      if(fl_SoftOf==false)fl_SoftOf=true;
+      else fl_SoftOf=false;
+    }
+    fl_needDebounce=true;
+  }
+  else
+  {
+    //key released, ready to next press
+    fl_needDebounce=false;
+  }
+
+  // change serialTimeoutCounter for rainbow speed
+  if(mState==0)
+  {
+    //is not soft-off state, GAY mode
+    if(fl_SoftOf==false)
+    {
+      state.serialTimeoutCounter=0;
+      rainbowSpeed++;
+      if(rainbowSpeed==10000)
+      {
+        rainbowCycle();
+        rainbowSpeed=0;
+      }
+    }
+    else
+    {
+      //soft-off, go black
+      colorWipe(strip.Color(0,   0,   0)     , 0); 
     }
   }
   
