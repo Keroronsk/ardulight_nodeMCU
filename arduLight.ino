@@ -6,6 +6,7 @@
 #include <DNSServer.h> 
 
 
+//#define USE_CAPTIVE_PORTAL
 
 // Which pin on the Arduino is connected to the NeoPixels?
 // On a Trinket or Gemma we suggest changing this to 1:
@@ -53,8 +54,8 @@ Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 //   NEO_RGBW    Pixels are wired for RGBW bitstream (NeoPixel RGBW products)
 
 
-//const char *ssid =  "keroro_7g";     // replace with your wifi ssid and wpa2 key
-//const char *pass =  "zzzaq12";
+const char *ssid =  "keroro_2g";     // replace with your wifi ssid and wpa2 key
+const char *pass =  "zzzaq12wsxxx";
 
 WiFiClient client;
 
@@ -122,38 +123,36 @@ char buff[32];
   Serial.printf("\n\nReason for reboot: %s\n", buff);
   Serial.println("----------------------------------------------");
 
-
+  pinMode(TRIGGER_PIN, INPUT_PULLUP);
   //Blynk.begin("Authentication Token", "SSID", "Password");
-  //delay(10);
+  delay(100);
   strip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
   strip.show();            // Turn OFF all pixels ASAP
   strip.setBrightness(BRIGHTNESS); // Set BRIGHTNESS
 
   colorWipe(strip.Color(255,   0,   0)     , 0); // Red
-  pinMode(TRIGGER_PIN, INPUT_PULLUP);
+  
 
-#if 0
+  //start wifi init
+  Serial.println("\n Starting");
+  
+#if !defined USE_CAPTIVE_PORTAL
+
    Serial.println("Connecting to ");
    Serial.println(ssid); 
   
    WiFi.begin(ssid, pass); 
    while (WiFi.status() != WL_CONNECTED) 
-      {
+   {
         delay(500);
         Serial.print(".");
         yield();
-      }
+   }
   Serial.println("");
   Serial.println("WiFi connected"); 
-#endif
-
-//start wifi init
-
-  // initialize the LED digital pin as an output.
-  //pinMode(PIN_LED, OUTPUT);
-  // Serial.begin(115200);
-  Serial.println("\n Starting");
   
+#else
+
 // is configuration portal requested?
   if (WiFi.SSID()=="" || digitalRead(TRIGGER_PIN) == HIGH){
     
@@ -188,9 +187,11 @@ char buff[32];
     ESP.reset(); // This is a bit crude. For some unknown reason webserver can only be started once per boot up 
     // so resetting the device allows to go back into config mode again when it reboots.
     delay(5000);
- 
+
   }
   else{
+    
+    
     
     //digitalWrite(PIN_LED, HIGH); // Turn led off as we are not in configuration mode.
     WiFi.mode(WIFI_STA); // Force to station mode because if device was switched off while in access point mode it will start up next time in access point mode.
@@ -204,7 +205,10 @@ char buff[32];
     
   }
   
+ #endif
 
+
+ 
 
   //end wifi init
   Udp.begin(localUdpPort);
