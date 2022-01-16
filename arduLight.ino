@@ -250,9 +250,14 @@ static bool fl_SoftOf=false;
     //key is pressed, wait to release key
     if(fl_needDebounce==false)
     {
-      if(fl_SoftOf==false)fl_SoftOf=true;
-      else fl_SoftOf=false;
+      if(fl_SoftOf==false){fl_SoftOf=true;}
+      else 
+      {
+        fl_SoftOf=false;
+        mState=0;
+      }
     }
+    
     fl_needDebounce=true;
   }
   else
